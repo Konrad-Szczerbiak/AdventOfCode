@@ -1,48 +1,32 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <ctype.h>
 
-#define MAXNUMS 1000
 #define CALIBNUM_DIGITS_CNT 2
 #define NULLTERM_CHARS_CNT 1
+
 int main(__attribute__((unused))int argc, __attribute__((unused))char** argv)
 {
-    __attribute__((unused))FILE *calibFile = fopen("srcCalib.txt", "r");
+    FILE *calibFile = fopen("srcCalib.txt", "r");
     int c = 0;
-    int digits[MAXNUMS] = {0};
-    int digitIndex = 0;
-    char calibNum[CALIBNUM_DIGITS_CNT + NULLTERM_CHARS_CNT] = {0};
+    char calibNum[CALIBNUM_DIGITS_CNT+NULLTERM_CHARS_CNT] = {'x','x','\0'};
     int calibSums = 0;
-    while (c != EOF)
+    do  
     {
         c = fgetc(calibFile);
-        if (MAXNUMS == digitIndex || '\n' == c)
-        {            
-            calibNum[0] = digits[0];
-            calibNum[1] = digits[--digitIndex];            
-            calibNum[2] = '\0';            
-            printf("%c%c\n", calibNum[0], calibNum[1]);
+        if ('\n' == c || EOF == c)
+        {   
+            if ('x' == calibNum[1]) (calibNum[1] = calibNum[0]);
             calibSums += atoi(calibNum);
-            printf("\n\nsum act: %d\n\n", calibSums);
-            memset(digits, 0, MAXNUMS);
-            digitIndex = 0;
-            continue;
+            calibNum[0] = calibNum[1] = 'x';
         }
-        if (0 != isdigit(c))
+        else if (0 != isdigit(c))
         {
-            (digits[digitIndex++] = c);
+            ('x' == calibNum[0]) ? 
+            (calibNum[0] = c) : 
+            (calibNum[1] = c);              
         } 
-    }
-            calibNum[0] = digits[0];
-            calibNum[1] = digits[--digitIndex];            
-            calibNum[2] = '\0';            
-            printf("%c%c\n", calibNum[0], calibNum[1]);
-            calibSums += atoi(calibNum);
-            printf("\n\nsum act: %d\n\n", calibSums);
-            memset(digits, 0, MAXNUMS);
-            digitIndex = 0;
-
-    printf("\n\n%d", calibSums);
+    } while (c != EOF);
+    printf("\n\n%d\n", calibSums);
     return 0;
 }
